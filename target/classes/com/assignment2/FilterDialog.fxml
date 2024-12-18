@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.assignment2.FilterDialogController"
+    spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10" />
+    </padding>
+    <children>
+        <Label text="Add Filter Conditions" styleClass="section-label" />
+
+        <HBox spacing="5">
+            <Label text="Column:" />
+            <ComboBox fx:id="columnComboBox" prefWidth="200" />
+        </HBox>
+
+        <HBox spacing="5">
+            <Label text="Operator:" />
+            <ComboBox fx:id="operatorComboBox" prefWidth="100" />
+        </HBox>
+
+        <HBox spacing="5">
+            <Label text="Value:" />
+            <TextField fx:id="valueField" prefWidth="200" />
+        </HBox>
+
+        <HBox spacing="10">
+            <Button text="Add Condition" onAction="#handleAddCondition" />
+            <Button text="Clear Conditions" onAction="#handleClearConditions" />
+        </HBox>
+
+        <ListView fx:id="conditionsListView" prefHeight="150" />
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Apply Filters" onAction="#handleApplyFilters" />
+            <Button text="Cancel" onAction="#handleCancel" />
+        </HBox>
+    </children>
+</VBox>

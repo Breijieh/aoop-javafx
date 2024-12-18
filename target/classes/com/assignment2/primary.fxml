@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.assignment2.PrimaryController">
+
+   <!-- Top Menu Bar -->
+   <top>
+      <MenuBar>
+         <menus>
+            <Menu text="File">
+               <items>
+                  <MenuItem text="Import CSV" onAction="#handleImportCSV" />
+                  <SeparatorMenuItem />
+                  <MenuItem text="Exit" onAction="#handleExit" />
+               </items>
+            </Menu>
+            <Menu text="Help">
+               <items>
+                  <MenuItem text="About" onAction="#handleAbout" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+   </top>
+
+   <!-- Left Sidebar with Operation Buttons -->
+   <left>
+      <VBox spacing="10">
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+         <children>
+            <Button text="Filter Data" onAction="#handleFilter" prefWidth="150" />
+            <Button text="Group By" onAction="#handleGroupBy" prefWidth="150" />
+            <Button text="Statistics" onAction="#handleStatistics" prefWidth="150" />
+            <!-- Add more buttons as needed -->
+         </children>
+      </VBox>
+   </left>
+
+   <!-- Center: Data Table -->
+   <center>
+      <TableView fx:id="dataTable">
+         <!-- Columns will be populated dynamically in the controller -->
+      </TableView>
+   </center>
+
+   <!-- Right: Charts Area -->
+   <right>
+      <TitledPane text="Charts" expanded="true" collapsible="true">
+         <content>
+            <VBox spacing="10">
+               <padding>
+                  <Insets top="10" right="10" bottom="10" left="10" />
+               </padding>
+               <Button text="Show Pie Chart" onAction="#handlePieChart" maxWidth="Infinity" />
+            </VBox>
+         </content>
+      </TitledPane>
+   </right>
+
+   <!-- Bottom: Status Bar -->
+   <bottom>
+      <Label fx:id="statusLabel" text="Ready">
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+      </Label>
+   </bottom>
+
+</BorderPane>

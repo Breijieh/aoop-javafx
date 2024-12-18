@@ -1,0 +1,17 @@
+com\assignment2\parser\CSVField.class
+com\assignment2\GroupByDialogController.class
+com\assignment2\AnalyticsService.class
+com\assignment2\model\DataRow.class
+com\assignment2\GroupedData.class
+com\assignment2\analytics\Analytics.class
+com\assignment2\AggregationFunction.class
+com\assignment2\PrimaryController.class
+com\assignment2\util\DataUtil.class
+com\assignment2\model\DataRow$DataType.class
+module-info.class
+com\assignment2\StatisticsDialogController.class
+com\assignment2\App.class
+com\assignment2\FilterDialogController.class
+com\assignment2\FilterDialogController$1.class
+com\assignment2\parser\CSVParsingException.class
+com\assignment2\parser\CSVParser.class

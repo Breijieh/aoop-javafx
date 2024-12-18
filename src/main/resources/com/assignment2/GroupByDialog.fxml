@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.assignment2.GroupByDialogController"
+    spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10" />
+    </padding>
+    <children>
+        <Label text="Group By Operations" styleClass="section-label" />
+
+        <HBox spacing="5">
+            <Label text="Group By Column:" />
+            <ComboBox fx:id="groupByColumnComboBox" prefWidth="200" />
+        </HBox>
+
+        <!-- Aggregation Section -->
+        <Label text="Add Aggregation Functions:" />
+        <VBox spacing="5">
+            <HBox spacing="5">
+                <ComboBox fx:id="aggregationFunctionComboBox" prefWidth="150" />
+                <ComboBox fx:id="aggregationColumnComboBox" prefWidth="200" />
+                <Button text="Add" onAction="#handleAddAggregation" />
+            </HBox>
+            <ListView fx:id="aggregationListView" prefHeight="150" />
+        </VBox>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Apply Group By" onAction="#handleApplyGroupBy" />
+            <Button text="Cancel" onAction="#handleCancel" />
+        </HBox>
+    </children>
+</VBox>

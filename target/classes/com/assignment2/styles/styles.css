@@ -1,0 +1,114 @@
+/* General Styling */
+* {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-focus-color: #66ccff;
+    -fx-faint-focus-color: #66ccff33;
+}
+
+/* VBox and HBox Padding and Spacing */
+VBox,
+HBox {
+    -fx-spacing: 10px;
+    -fx-padding: 10px;
+}
+
+/* Label Styling */
+Label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+.section-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #004085;
+    -fx-background-color: #e9f7ff;
+    -fx-padding: 5px 10px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+/* Button Styling */
+Button {
+    -fx-background-color: #66ccff;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 16px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 3, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+Button:hover {
+    -fx-background-color: #00aaff;
+}
+
+Button:pressed {
+    -fx-background-color: #008acb;
+}
+
+/* ComboBox Styling */
+ComboBox {
+    -fx-border-color: #66ccff;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
+
+/* TextField Styling */
+TextField {
+    -fx-border-color: #66ccff;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
+
+/* ListView Styling */
+ListView {
+    -fx-border-color: #d6d6d6;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
+
+/* TableView Styling */
+TableView {
+    -fx-border-color: #d6d6d6;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
+
+/* MenuBar Styling */
+MenuBar {
+    -fx-background-color: #53bdf1;
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+
+Menu {
+    -fx-text-fill: white;
+}
+
+/* Status Bar Styling */
+.status-bar {
+    -fx-background-color: #f1f1f1;
+    -fx-border-color: #d6d6d6;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+/* TitledPane Styling */
+TitledPane {
+    -fx-border-color: #66ccff;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+TitledPane>.title {
+    -fx-background-color: #66ccff;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px 5px 0 0;
+    -fx-background-radius: 5px 5px 0 0;
+    -fx-padding: 5px;
+}
