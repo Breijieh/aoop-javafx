@@ -2,6 +2,7 @@ module com.assignment2 {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.logging;
+    requires javafx.base;
 
     opens com.assignment2 to javafx.fxml;
 

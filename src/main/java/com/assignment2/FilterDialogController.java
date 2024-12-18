@@ -4,7 +4,9 @@ import com.assignment2.analytics.Analytics;
 import com.assignment2.model.DataRow;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
@@ -12,9 +14,6 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controller for the Filter Dialog.
- */
 public class FilterDialogController {
 
     @FXML
@@ -27,22 +26,27 @@ public class FilterDialogController {
     private TextField valueField;
 
     @FXML
+    private ListView<String> conditionsListView;
+
+    @FXML
     private Button applyFilterButton;
 
     @FXML
     private Button cancelButton;
-
-    @FXML
-    private ListView<String> conditionsListView;
 
     private Analytics<DataRow> analytics;
     private Analytics<DataRow> filteredAnalytics;
 
     private static final Logger logger = Logger.getLogger(FilterDialogController.class.getName());
 
+    /**
+     * Initializes the controller. This method is automatically called after the
+     * FXML file has been loaded.
+     */
     @FXML
     private void initialize() {
-        // Initialization logic if needed
+        // Initialize operators based on selected column's data type
+        columnComboBox.setOnAction(event -> updateOperators());
     }
 
     /**
@@ -55,24 +59,26 @@ public class FilterDialogController {
         populateColumns();
     }
 
+    /**
+     * Populates the column ComboBox with available columns from the data.
+     */
     private void populateColumns() {
         if (analytics.getData().isEmpty()) {
+            logger.warning("Analytics data is empty. Columns cannot be populated.");
             return;
         }
         DataRow firstRow = analytics.getData().get(0);
         columnComboBox.setItems(FXCollections.observableArrayList(firstRow.getFields().keySet()));
         if (!firstRow.getFields().keySet().isEmpty()) {
             columnComboBox.getSelectionModel().selectFirst();
+            updateOperators();
         }
-
-        // Initialize operators based on the first column's type
-        updateFilterOperations();
-
-        // Add listener to update operators when column selection changes
-        columnComboBox.setOnAction(event -> updateFilterOperations());
     }
 
-    private void updateFilterOperations() {
+    /**
+     * Updates the operator ComboBox based on the selected column's data type.
+     */
+    private void updateOperators() {
         String selectedColumn = columnComboBox.getValue();
         if (selectedColumn == null || selectedColumn.isEmpty()) {
             operatorComboBox.setItems(FXCollections.observableArrayList());
@@ -93,8 +99,14 @@ public class FilterDialogController {
         }
     }
 
+    /**
+     * Handles adding a filter condition to the list.
+     *
+     * @param event The action event triggered by clicking the "Add Condition"
+     *              button.
+     */
     @FXML
-    private void handleAddCondition() {
+    private void handleAddCondition(ActionEvent event) {
         String column = columnComboBox.getValue();
         String operator = operatorComboBox.getValue();
         String value = valueField.getText().trim();
@@ -121,13 +133,25 @@ public class FilterDialogController {
         valueField.clear();
     }
 
+    /**
+     * Handles clearing all filter conditions from the list.
+     *
+     * @param event The action event triggered by clicking the "Clear Conditions"
+     *              button.
+     */
     @FXML
-    private void handleClearConditions() {
+    private void handleClearConditions(ActionEvent event) {
         conditionsListView.getItems().clear();
     }
 
+    /**
+     * Handles applying the filter conditions and updating the analytics data.
+     *
+     * @param event The action event triggered by clicking the "Apply Filters"
+     *              button.
+     */
     @FXML
-    private void handleApplyFilters() {
+    private void handleApplyFilters(ActionEvent event) {
         ObservableList<String> conditions = conditionsListView.getItems();
 
         if (conditions.isEmpty()) {
@@ -144,7 +168,7 @@ public class FilterDialogController {
             filteredAnalytics = AnalyticsService.filter(analytics, combinedPredicate);
 
             // Close the dialog
-            Stage stage = (Stage) applyFilterButton.getScene().getWindow();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.close();
 
             logger.info("Filters applied successfully.");
@@ -155,6 +179,12 @@ public class FilterDialogController {
         }
     }
 
+    /**
+     * Parses a condition string into a Predicate for filtering.
+     *
+     * @param condition The condition string (e.g., "Age > 30").
+     * @return A Predicate representing the condition.
+     */
     private Predicate<DataRow> parseCondition(String condition) {
         String[] parts = condition.split(" ", 3);
         if (parts.length != 3) {
@@ -301,20 +331,27 @@ public class FilterDialogController {
     }
 
     /**
-     * Handles the Cancel button action.
+     * Handles canceling the filter operation and closing the dialog.
+     *
+     * @param event The action event triggered by clicking the "Cancel" button.
      */
     @FXML
-    private void handleCancel() {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
+    private void handleCancel(ActionEvent event) {
+        try {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.close();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to close the dialog.");
+            logger.log(Level.SEVERE, "Error closing Filter dialog:", e);
+        }
     }
 
     /**
-     * Displays an alert dialog.
+     * Displays an alert dialog to the user.
      *
-     * @param alertType Type of alert.
-     * @param title     Title of the dialog.
-     * @param message   Content message.
+     * @param alertType The type of alert.
+     * @param title     The title of the alert dialog.
+     * @param message   The content message of the alert dialog.
      */
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);

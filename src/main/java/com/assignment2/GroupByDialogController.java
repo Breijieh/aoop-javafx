@@ -2,19 +2,18 @@ package com.assignment2;
 
 import com.assignment2.analytics.Analytics;
 import com.assignment2.model.DataRow;
+
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.Node;
 import javafx.stage.Stage;
+import javafx.scene.control.*;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Controller for the Group By Dialog.
- */
 public class GroupByDialogController {
 
     @FXML
@@ -45,10 +44,6 @@ public class GroupByDialogController {
 
     private static final Logger logger = Logger.getLogger(GroupByDialogController.class.getName());
 
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the FXML file has been loaded.
-     */
     @FXML
     private void initialize() {
         // Initialize aggregation functions
@@ -99,7 +94,7 @@ public class GroupByDialogController {
      * Handles adding an aggregation function.
      */
     @FXML
-    private void handleAddAggregation() {
+    private void handleAddAggregation(ActionEvent event) {
         String function = aggregationFunctionComboBox.getValue();
         String column = aggregationColumnComboBox.getValue();
 
@@ -129,7 +124,7 @@ public class GroupByDialogController {
      * Handles applying the group by operations.
      */
     @FXML
-    private void handleApplyGroupBy() {
+    private void handleApplyGroupBy(ActionEvent event) {
         String groupByColumn = groupByColumnComboBox.getValue();
 
         if (groupByColumn == null || groupByColumn.isEmpty()) {
@@ -147,26 +142,23 @@ public class GroupByDialogController {
             Map<Object, Map<String, Object>> groupedData = AnalyticsService.performGroupByMultipleAggregations(
                     analytics, groupByColumn, aggregationFunctions);
 
-            // Convert groupedData to a new list of DataRow or another appropriate structure
-            // For simplicity, we'll skip this step and assume groupedAnalytics can be
-            // represented similarly
-            // You might need to create a new Analytics<DataRow> instance or a different
-            // data structure
+            // Convert groupedData to a list of DataRow
+            List<DataRow> groupedRows = new ArrayList<>();
+            for (Map.Entry<Object, Map<String, Object>> entry : groupedData.entrySet()) {
+                DataRow row = new DataRow();
+                row.addField(groupByColumn, entry.getKey().toString());
+                for (Map.Entry<String, Object> aggEntry : entry.getValue().entrySet()) {
+                    row.addField(aggEntry.getKey(), aggEntry.getValue().toString());
+                }
+                groupedRows.add(row);
+            }
 
-            // For demonstration, we'll just log the grouped data
-            logger.info("Grouped Data: " + groupedData.toString());
-
-            // TODO: Convert groupedData into Analytics<DataRow> or another suitable
-            // structure
-            // This part depends on how you want to represent grouped data in your
-            // application
-            // For now, we'll leave groupedAnalytics as null
+            groupedAnalytics = new Analytics<>(groupedRows);
 
             // Close the dialog
-            Stage stage = (Stage) applyGroupByButton.getScene().getWindow();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.close();
 
-            // Notify success
             showAlert(Alert.AlertType.INFORMATION, "Group By Success", "Data has been grouped successfully.");
             logger.info("Group By applied successfully.");
 
@@ -180,9 +172,14 @@ public class GroupByDialogController {
      * Handles canceling the group by operation.
      */
     @FXML
-    private void handleCancel() {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
+    private void handleCancel(ActionEvent event) {
+        try {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.close();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to close the dialog.");
+            logger.log(Level.SEVERE, "Error closing Group By dialog:", e);
+        }
     }
 
     /**
