@@ -19,6 +19,7 @@ public class App extends Application {
         Parent root = loadFXML("primary"); // Ensure "Primary.fxml" exists and is correctly named
 
         Scene scene = new Scene(root, 800, 600);
+        stage.setMaximized(true);
         try {
             scene.getStylesheets().add(getClass().getResource("/com/assignment2/styles/styles.css").toExternalForm());
         } catch (NullPointerException e) {

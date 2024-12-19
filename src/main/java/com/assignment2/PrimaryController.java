@@ -35,6 +35,9 @@ public class PrimaryController {
     @FXML
     private Label statusLabel;
 
+    @FXML
+    private Button restoreOriginalDataButton; // New Button
+
     private Analytics<DataRow> originalAnalytics; // Holds original data
     private Analytics<DataRow> currentAnalytics; // Holds current (filtered/sorted) data
 
@@ -49,6 +52,9 @@ public class PrimaryController {
         // Initialize with empty data
         originalAnalytics = new Analytics<>(new ArrayList<>());
         currentAnalytics = new Analytics<>(new ArrayList<>());
+
+        // Disable Restore button initially since no operations have been applied
+        restoreOriginalDataButton.setDisable(true);
     }
 
     /**
@@ -127,6 +133,7 @@ public class PrimaryController {
                 currentAnalytics = originalAnalytics; // Initialize currentAnalytics with original data
                 populateTable(currentAnalytics.getData());
                 statusLabel.setText("Imported: " + file.getName());
+                restoreOriginalDataButton.setDisable(true); // No operations applied yet
                 logger.info("Successfully imported CSV: " + file.getName());
             } catch (CSVParsingException e) {
                 showAlert(Alert.AlertType.ERROR, "CSV Parsing Error", e.getMessage());
@@ -185,6 +192,9 @@ public class PrimaryController {
     public void updateAnalytics(Analytics<DataRow> updatedAnalytics) {
         this.currentAnalytics = updatedAnalytics;
         populateTable(this.currentAnalytics.getData());
+
+        // Enable the Restore button since operations have been applied
+        restoreOriginalDataButton.setDisable(false);
     }
 
     /**
@@ -230,6 +240,9 @@ public class PrimaryController {
             if (filteredAnalytics != null) {
                 updateAnalytics(filteredAnalytics);
                 statusLabel.setText("Data filtered.");
+            } else {
+                statusLabel.setText("Filter applied but no data matched the criteria.");
+                logger.warning("Filtered analytics returned null.");
             }
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Filter Error", "Failed to open Filter Dialog.");
@@ -294,6 +307,23 @@ public class PrimaryController {
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Statistics Error", "Failed to open Statistics Dialog.");
             logger.log(Level.SEVERE, "Error opening Statistics Dialog:", e);
+        }
+    }
+
+    /**
+     * Handles restoring the original data from the CSV.
+     */
+    @FXML
+    private void handleRestoreOriginalData(ActionEvent event) {
+        if (originalAnalytics != null) {
+            currentAnalytics = originalAnalytics;
+            populateTable(currentAnalytics.getData());
+            statusLabel.setText("Reverted to original data.");
+            restoreOriginalDataButton.setDisable(true); // Disable since we're back to original
+            logger.info("Restored original data from CSV.");
+        } else {
+            showAlert(Alert.AlertType.WARNING, "No Data", "No original data available to restore.");
+            logger.warning("Attempted to restore original data, but originalAnalytics is null.");
         }
     }
 

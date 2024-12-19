@@ -65,14 +65,17 @@ public class FilterDialogController {
     private void populateColumns() {
         if (analytics.getData().isEmpty()) {
             logger.warning("Analytics data is empty. Columns cannot be populated.");
+            showAlert(Alert.AlertType.WARNING, "No Data", "No data available to filter.");
             return;
         }
         DataRow firstRow = analytics.getData().get(0);
-        columnComboBox.setItems(FXCollections.observableArrayList(firstRow.getFields().keySet()));
-        if (!firstRow.getFields().keySet().isEmpty()) {
+        ObservableList<String> columns = FXCollections.observableArrayList(firstRow.getFields().keySet());
+        columnComboBox.setItems(columns);
+        if (!columns.isEmpty()) {
             columnComboBox.getSelectionModel().selectFirst();
             updateOperators();
         }
+        logger.info("Populated columns: " + columns);
     }
 
     /**
@@ -97,6 +100,8 @@ public class FilterDialogController {
         if (!operatorComboBox.getItems().isEmpty()) {
             operatorComboBox.getSelectionModel().selectFirst();
         }
+        logger.info("Updated operators for column '" + selectedColumn + "' (Type: " + type + "): "
+                + operatorComboBox.getItems());
     }
 
     /**
@@ -126,11 +131,54 @@ public class FilterDialogController {
             return;
         }
 
-        String condition = column + " " + operator + " " + value;
+        // Validate the value based on column data type
+        DataRow.DataType type = analytics.getData().get(0).getFieldType(column);
+        if (!validateValue(type, value)) {
+            showAlert(Alert.AlertType.ERROR, "Input Error", "Invalid value for the selected column type.");
+            return;
+        }
+
+        // Use '||' as a unique delimiter to handle operators with spaces
+        String condition = column + "||" + operator + "||" + value;
         conditionsListView.getItems().add(condition);
+        logger.info("Added condition: " + condition);
 
         // Optionally, clear the value field after adding
         valueField.clear();
+    }
+
+    /**
+     * Validates the input value based on the column's data type.
+     *
+     * @param type  The data type of the column.
+     * @param value The input value to validate.
+     * @return True if valid, else false.
+     */
+    private boolean validateValue(DataRow.DataType type, String value) {
+        try {
+            switch (type) {
+                case INTEGER:
+                    Integer.parseInt(value);
+                    break;
+                case DOUBLE:
+                    Double.parseDouble(value);
+                    break;
+                case BOOLEAN:
+                    if (!value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
+                        return false;
+                    }
+                    break;
+                case STRING:
+                    // No validation needed for strings
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        } catch (NumberFormatException e) {
+            logger.log(Level.WARNING, "Value validation failed for type " + type + " with value: " + value, e);
+            return false;
+        }
     }
 
     /**
@@ -142,6 +190,7 @@ public class FilterDialogController {
     @FXML
     private void handleClearConditions(ActionEvent event) {
         conditionsListView.getItems().clear();
+        logger.info("Cleared all filter conditions.");
     }
 
     /**
@@ -166,12 +215,12 @@ public class FilterDialogController {
                     .reduce(dataRow -> true, Predicate::and);
 
             filteredAnalytics = AnalyticsService.filter(analytics, combinedPredicate);
+            logger.info("Filters applied successfully. Filtered data size: "
+                    + (filteredAnalytics != null ? filteredAnalytics.getData().size() : "null"));
 
             // Close the dialog
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.close();
-
-            logger.info("Filters applied successfully.");
 
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Filter Error", "An error occurred while applying filters.");
@@ -182,18 +231,18 @@ public class FilterDialogController {
     /**
      * Parses a condition string into a Predicate for filtering.
      *
-     * @param condition The condition string (e.g., "Age > 30").
+     * @param condition The condition string (e.g., "Category||Starts With||E").
      * @return A Predicate representing the condition.
      */
     private Predicate<DataRow> parseCondition(String condition) {
-        String[] parts = condition.split(" ", 3);
+        String[] parts = condition.split("\\|\\|", 3);
         if (parts.length != 3) {
             throw new IllegalArgumentException("Invalid condition format: " + condition);
         }
 
         String column = parts[0];
         String operator = parts[1];
-        String value = parts[2];
+        String value = parts[2].trim();
 
         DataRow.DataType type = analytics.getData().get(0).getFieldType(column);
 
@@ -287,31 +336,33 @@ public class FilterDialogController {
                         throw new IllegalArgumentException("Unsupported operator for BOOLEAN: " + operator);
                 }
             case STRING:
+                String trimmedValue = value.trim();
                 switch (operator) {
                     case "Contains":
                         return row -> {
                             Object field = row.getField(column);
-                            return field != null && ((String) field).contains(value);
+                            return field != null && ((String) field).toLowerCase().contains(trimmedValue.toLowerCase());
                         };
                     case "Starts With":
                         return row -> {
                             Object field = row.getField(column);
-                            return field != null && ((String) field).startsWith(value);
+                            return field != null
+                                    && ((String) field).toLowerCase().startsWith(trimmedValue.toLowerCase());
                         };
                     case "Ends With":
                         return row -> {
                             Object field = row.getField(column);
-                            return field != null && ((String) field).endsWith(value);
+                            return field != null && ((String) field).toLowerCase().endsWith(trimmedValue.toLowerCase());
                         };
                     case "=":
                         return row -> {
                             Object field = row.getField(column);
-                            return field != null && ((String) field).equals(value);
+                            return field != null && ((String) field).equalsIgnoreCase(trimmedValue);
                         };
                     case "!=":
                         return row -> {
                             Object field = row.getField(column);
-                            return field != null && !((String) field).equals(value);
+                            return field != null && !((String) field).equalsIgnoreCase(trimmedValue);
                         };
                     default:
                         throw new IllegalArgumentException("Unsupported operator for STRING: " + operator);
@@ -340,6 +391,7 @@ public class FilterDialogController {
         try {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.close();
+            logger.info("Filter dialog closed without applying filters.");
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Unable to close the dialog.");
             logger.log(Level.SEVERE, "Error closing Filter dialog:", e);

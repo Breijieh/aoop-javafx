@@ -31,11 +31,12 @@ public class AnalyticsService {
      * @return A new Analytics instance containing the filtered data.
      */
     public static Analytics<DataRow> filter(Analytics<DataRow> analytics, Predicate<DataRow> predicate) {
-        List<DataRow> filteredData = analytics.getData().stream()
-                .filter(predicate)
-                .collect(Collectors.toList());
-        logger.info("Data filtered. Original size: " + analytics.getData().size() +
-                ", Filtered size: " + filteredData.size());
+        List<DataRow> filteredData = new ArrayList<>();
+        for (DataRow row : analytics.getData()) {
+            if (predicate.test(row)) {
+                filteredData.add(row);
+            }
+        }
         return new Analytics<>(filteredData);
     }
 

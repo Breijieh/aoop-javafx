@@ -62,13 +62,16 @@
       </TitledPane>
    </right>
 
-   <!-- Bottom: Status Bar -->
+   <!-- Bottom: Status Bar with Restore Button -->
    <bottom>
-      <Label fx:id="statusLabel" text="Ready">
+      <HBox spacing="10" alignment="CENTER_RIGHT">
          <padding>
             <Insets top="10" right="10" bottom="10" left="10" />
          </padding>
-      </Label>
+         <Button text="Restore Original Data" fx:id="restoreOriginalDataButton"
+            onAction="#handleRestoreOriginalData" />
+         <Label fx:id="statusLabel" text="Ready" />
+      </HBox>
    </bottom>
 
 </BorderPane>
